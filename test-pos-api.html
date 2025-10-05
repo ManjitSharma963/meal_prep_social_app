@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>POS System API Test</h1>
+    
+    <div class="grid">
+        <!-- Menu Items Section -->
+        <div class="container">
+            <h2>Menu Items Management</h2>
+            
+            <button onclick="getMenuItems()">Get All Menu Items</button>
+            <button onclick="getMenuItemById()">Get Menu Item by ID</button>
+            
+            <div class="form-group">
+                <label>Menu Item ID:</label>
+                <input type="number" id="menuItemId" value="1">
+            </div>
+            
+            <h3>Create Menu Item</h3>
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" id="itemName" value="Test Item">
+            </div>
+            <div class="form-group">
+                <label>Price:</label>
+                <input type="number" id="itemPrice" value="100" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Category:</label>
+                <select id="itemCategory">
+                    <option value="North Indian">North Indian</option>
+                    <option value="South Indian">South Indian</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Continental">Continental</option>
+                    <option value="Juices">Juices</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Desserts">Desserts</option>
+                    <option value="Snacks">Snacks</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea id="itemDescription" rows="3">Test description</textarea>
+            </div>
+            <button onclick="createMenuItem()">Create Menu Item</button>
+            
+            <div id="menuResult" class="result"></div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="container">
+            <h2>Orders Management</h2>
+            
+            <button onclick="getOrders()">Get All Orders</button>
+            <button onclick="getOrderById()">Get Order by ID</button>
+            
+            <div class="form-group">
+                <label>Order ID:</label>
+                <input type="text" id="orderId" value="ORD-001">
+            </div>
+            
+            <h3>Create Order</h3>
+            <div class="form-group">
+                <label>Customer Name:</label>
+                <input type="text" id="customerName" value="Test Customer">
+            </div>
+            <div class="form-group">
+                <label>Payment Method:</label>
+                <select id="paymentMethod">
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Promo Code (Optional):</label>
+                <input type="text" id="promoCode" placeholder="Enter promo code">
+            </div>
+            <button onclick="createOrder()">Create Test Order</button>
+            
+            <div id="orderResult" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Sales Reporting Section -->
+    <div class="container">
+        <h2>Sales Reporting</h2>
+        
+        <button onclick="getSalesSummary()">Get Sales Summary</button>
+        <button onclick="getDailySales()">Get Daily Sales</button>
+        <button onclick="getCategorySales()">Get Category Sales</button>
+        
+        <div class="form-group">
+            <label>Start Date:</label>
+            <input type="date" id="startDate" value="2024-01-01">
+        </div>
+        <div class="form-group">
+            <label>End Date:</label>
+            <input type="date" id="endDate" value="2024-01-31">
+        </div>
+        <div class="form-group">
+            <label>Specific Date:</label>
+            <input type="date" id="specificDate" value="2024-01-25">
+        </div>
+        
+        <div id="salesResult" class="result"></div>
+    </div>
+
+    <!-- Promo Codes Section -->
+    <div class="container">
+        <h2>Promo Codes Management</h2>
+        
+        <button onclick="getPromoCodes()">Get All Promo Codes</button>
+        <button onclick="validatePromoCode()">Validate Promo Code</button>
+        
+        <h3>Create Promo Code</h3>
+        <div class="form-group">
+            <label>Code:</label>
+            <input type="text" id="promoCodeName" value="TEST10">
+        </div>
+        <div class="form-group">
+            <label>Discount Type:</label>
+            <select id="discountType">
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Discount Value:</label>
+            <input type="number" id="discountValue" value="10" step="0.01">
+        </div>
+        <div class="form-group">
+            <label>Min Order Amount:</label>
+            <input type="number" id="minOrderAmount" value="100" step="0.01">
+        </div>
+        <button onclick="createPromoCode()">Create Promo Code</button>
+        
+        <div class="form-group">
+            <label>Validate Code:</label>
+            <input type="text" id="validateCode" value="TEST10">
+        </div>
+        <div class="form-group">
+            <label>Order Amount:</label>
+            <input type="number" id="orderAmount" value="500" step="0.01">
+        </div>
+        
+        <div id="promoResult" class="result"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:3002';
+
+        // Menu Items Functions
+        async function getMenuItems() {
+            try {
+                const response = await fetch(`${BASE_URL}/menu-items`);
+                const data = await response.json();
+                document.getElementById('menuResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('menuResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getMenuItemById() {
+            const id = document.getElementById('menuItemId').value;
+            try {
+                const response = await fetch(`${BASE_URL}/menu-items/${id}`);
+                const data = await response.json();
+                document.getElementById('menuResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('menuResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createMenuItem() {
+            const itemData = {
+                name: document.getElementById('itemName').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                category: document.getElementById('itemCategory').value,
+                description: document.getElementById('itemDescription').value,
+                isAvailable: true
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/menu-items`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                const data = await response.json();
+                document.getElementById('menuResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('menuResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Orders Functions
+        async function getOrders() {
+            try {
+                const response = await fetch(`${BASE_URL}/orders`);
+                const data = await response.json();
+                document.getElementById('orderResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('orderResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getOrderById() {
+            const orderId = document.getElementById('orderId').value;
+            try {
+                const response = await fetch(`${BASE_URL}/orders/${orderId}`);
+                const data = await response.json();
+                document.getElementById('orderResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('orderResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createOrder() {
+            const orderData = {
+                customerName: document.getElementById('customerName').value,
+                items: [
+                    {
+                        foodId: 1,
+                        itemName: "Paneer Butter Masala",
+                        quantity: 2,
+                        itemTotal: 360.00
+                    },
+                    {
+                        foodId: 2,
+                        itemName: "Chicken Biryani",
+                        quantity: 1,
+                        itemTotal: 220.00
+                    }
+                ],
+                subtotal: 580.00,
+                taxAmount: 58.00,
+                discountAmount: 0.00,
+                total: 638.00,
+                paymentMethod: document.getElementById('paymentMethod').value,
+                promoCode: document.getElementById('promoCode').value || null
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                const data = await response.json();
+                document.getElementById('orderResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('orderResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Sales Functions
+        async function getSalesSummary() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            try {
+                const response = await fetch(`${BASE_URL}/sales/summary?startDate=${startDate}&endDate=${endDate}`);
+                const data = await response.json();
+                document.getElementById('salesResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('salesResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getDailySales() {
+            const date = document.getElementById('specificDate').value;
+            try {
+                const response = await fetch(`${BASE_URL}/sales/daily?date=${date}`);
+                const data = await response.json();
+                document.getElementById('salesResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('salesResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getCategorySales() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            try {
+                const response = await fetch(`${BASE_URL}/sales/categories?startDate=${startDate}&endDate=${endDate}`);
+                const data = await response.json();
+                document.getElementById('salesResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('salesResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Promo Codes Functions
+        async function getPromoCodes() {
+            try {
+                const response = await fetch(`${BASE_URL}/promo-codes`);
+                const data = await response.json();
+                document.getElementById('promoResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('promoResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function createPromoCode() {
+            const promoData = {
+                code: document.getElementById('promoCodeName').value,
+                discountType: document.getElementById('discountType').value,
+                discountValue: parseFloat(document.getElementById('discountValue').value),
+                minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value),
+                validFrom: "2024-01-01",
+                validUntil: "2024-12-31",
+                usageLimit: 100,
+                isActive: true
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/promo-codes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(promoData)
+                });
+                const data = await response.json();
+                document.getElementById('promoResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('promoResult').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function validatePromoCode() {
+            const code = document.getElementById('validateCode').value;
+            const orderAmount = parseFloat(document.getElementById('orderAmount').value);
+
+            try {
+                const response = await fetch(`${BASE_URL}/promo-codes/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        orderAmount: orderAmount
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('promoResult').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('promoResult').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
