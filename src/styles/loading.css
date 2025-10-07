@@ -1,0 +1,493 @@
+/**
+ * Loading components and skeleton screen styles
+ */
+
+/* Base loading styles */
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.loading-message {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Button loading states */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn-loading .loading-spinner {
+  margin-right: 0.5rem;
+}
+
+/* Inline loading */
+.inline-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Skeleton base styles */
+.skeleton-text,
+.skeleton-rect,
+.skeleton-circle {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Recipe card skeleton */
+.recipe-card-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.recipe-image-skeleton {
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.recipe-content-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recipe-title-skeleton {
+  margin-bottom: 0.5rem;
+}
+
+.recipe-meta-skeleton {
+  margin-bottom: 0.5rem;
+}
+
+.recipe-description-skeleton {
+  margin-bottom: 0.25rem;
+}
+
+.recipe-actions-skeleton {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-skeleton {
+  border-radius: 4px;
+}
+
+/* Recipe list skeleton */
+.recipe-list-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Recipe detail skeleton */
+.recipe-detail-skeleton {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.recipe-header-skeleton {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.recipe-image-skeleton {
+  flex: 0 0 300px;
+  border-radius: 8px;
+}
+
+.recipe-info-skeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recipe-meta-skeleton {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.recipe-description-skeleton {
+  margin-bottom: 0.5rem;
+}
+
+.recipe-sections-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.ingredients-skeleton,
+.steps-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-title-skeleton {
+  margin-bottom: 1rem;
+}
+
+.ingredient-list-skeleton,
+.step-list-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ingredient-item-skeleton,
+.step-item-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Order card skeleton */
+.order-card-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.order-header-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-items-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.order-item-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.order-footer-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Order list skeleton */
+.order-list-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Inventory item skeleton */
+.inventory-item-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.inventory-header-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.inventory-details-skeleton {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.inventory-actions-skeleton {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Inventory list skeleton */
+.inventory-list-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Table skeleton */
+.table-skeleton {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-header-skeleton {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-body-skeleton {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-row-skeleton {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-row-skeleton:last-child {
+  border-bottom: none;
+}
+
+/* Form skeleton */
+.form-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-field-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field-label-skeleton {
+  margin-bottom: 0.25rem;
+}
+
+.field-input-skeleton {
+  border-radius: 4px;
+}
+
+.form-actions-skeleton {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Chart skeleton */
+.chart-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-content-skeleton {
+  border-radius: 4px;
+}
+
+/* Dashboard skeleton */
+.dashboard-skeleton {
+  padding: 1rem;
+}
+
+.dashboard-header-skeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-stats-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-charts-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.chart-section-skeleton {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .recipe-header-skeleton {
+    flex-direction: column;
+  }
+  
+  .recipe-image-skeleton {
+    flex: none;
+    width: 100%;
+  }
+  
+  .dashboard-charts-skeleton {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-stats-skeleton {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .skeleton-text,
+  .skeleton-rect,
+  .skeleton-circle {
+    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+  }
+  
+  .loading-content {
+    background: #1a1a1a;
+    color: white;
+  }
+  
+  .loading-message {
+    color: #ccc;
+  }
+  
+  .inline-loading {
+    color: #ccc;
+  }
+}
+
+/* Animation utilities */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading state utilities */
+.loading-state {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading-state * {
+  animation: none !important;
+}
+
+/* Skeleton variations */
+.skeleton-text.small {
+  height: 0.8rem;
+}
+
+.skeleton-text.medium {
+  height: 1rem;
+}
+
+.skeleton-text.large {
+  height: 1.2rem;
+}
+
+.skeleton-text.extra-large {
+  height: 1.5rem;
+}
+
+/* Pulse animation for loading states */
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { registerUser } from '../utils/api';
 import { Eye, EyeOff, User, Lock, Mail, Building, ArrowLeft, Phone, MapPin, Globe } from 'lucide-react';
+import { 
+  validateUsername, 
+  validateEmail, 
+  validatePassword, 
+  validateName, 
+  validatePhone,
+  validateBusinessName,
+  validateBusinessDescription,
+  validateBusinessType,
+  validateBusinessAddress,
+  validateBusinessPhone,
+  validateBusinessEmail,
+  validateBusinessWebsite,
+  validateForm as validateFormUtil
+} from '../utils/validation';
 import '../styles/login.css';
 
 const AdminRegister = ({ onBack }) => {
@@ -49,130 +64,40 @@ const AdminRegister = ({ onBack }) => {
   };
 
   const validateField = (name, value) => {
-    let errorMessage = '';
-    
     switch (name) {
       case 'username':
-        if (!value.trim()) {
-          errorMessage = 'Username is required';
-        } else if (value.length < 3) {
-          errorMessage = 'Username must be at least 3 characters long';
-        } else if (value.length > 30) {
-          errorMessage = 'Username must be less than 30 characters';
-        } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
-          errorMessage = 'Username can only contain letters, numbers, and underscores';
-        }
-        break;
-        
+        return validateUsername(value);
       case 'email':
-        if (!value.trim()) {
-          errorMessage = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          errorMessage = 'Please enter a valid email address';
-        } else if (value.length > 100) {
-          errorMessage = 'Email must be less than 100 characters';
-        }
-        break;
-        
+        return validateEmail(value);
       case 'firstName':
-        if (!value.trim()) {
-          errorMessage = 'First name is required';
-        } else if (value.length < 2) {
-          errorMessage = 'First name must be at least 2 characters long';
-        } else if (value.length > 30) {
-          errorMessage = 'First name must be less than 30 characters';
-        } else if (!/^[a-zA-Z\s'-]+$/.test(value)) {
-          errorMessage = 'First name can only contain letters, spaces, hyphens, and apostrophes';
-        }
-        break;
-        
+        return validateName(value, 'First name');
       case 'lastName':
-        if (!value.trim()) {
-          errorMessage = 'Last name is required';
-        } else if (value.length < 2) {
-          errorMessage = 'Last name must be at least 2 characters long';
-        } else if (value.length > 30) {
-          errorMessage = 'Last name must be less than 30 characters';
-        } else if (!/^[a-zA-Z\s'-]+$/.test(value)) {
-          errorMessage = 'Last name can only contain letters, spaces, hyphens, and apostrophes';
-        }
-        break;
-        
+        return validateName(value, 'Last name');
       case 'phoneNumber':
       case 'businessPhone':
-        if (!value.trim()) {
-          errorMessage = 'Phone number is required';
-        } else if (!/^[\+]?[0-9\s\-\(\)]{10,15}$/.test(value)) {
-          errorMessage = 'Please enter a valid phone number (10-15 digits)';
-        }
-        break;
-        
+        return validatePhone(value);
       case 'businessName':
-        if (!value.trim()) {
-          errorMessage = 'Business name is required';
-        } else if (value.length < 2) {
-          errorMessage = 'Business name must be at least 2 characters long';
-        } else if (value.length > 100) {
-          errorMessage = 'Business name must be less than 100 characters';
-        }
-        break;
-        
+        return validateBusinessName(value);
       case 'businessDescription':
-        if (!value.trim()) {
-          errorMessage = 'Business description is required';
-        } else if (value.length < 10) {
-          errorMessage = 'Business description must be at least 10 characters long';
-        } else if (value.length > 500) {
-          errorMessage = 'Business description must be less than 500 characters';
-        }
-        break;
-        
+        return validateBusinessDescription(value);
+      case 'businessType':
+        return validateBusinessType(value);
       case 'businessAddress':
-        if (!value.trim()) {
-          errorMessage = 'Business address is required';
-        } else if (value.length < 10) {
-          errorMessage = 'Business address must be at least 10 characters long';
-        } else if (value.length > 200) {
-          errorMessage = 'Business address must be less than 200 characters';
-        }
-        break;
-        
+        return validateBusinessAddress(value);
       case 'businessEmail':
-        if (!value.trim()) {
-          errorMessage = 'Business email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          errorMessage = 'Please enter a valid business email address';
-        } else if (value.length > 100) {
-          errorMessage = 'Business email must be less than 100 characters';
-        }
-        break;
-        
+        return validateBusinessEmail(value);
       case 'businessWebsite':
-        if (value.trim() && !/^https?:\/\/.+/.test(value)) {
-          errorMessage = 'Business website must start with http:// or https://';
-        } else if (value.length > 200) {
-          errorMessage = 'Business website must be less than 200 characters';
-        }
-        break;
-        
+        return validateBusinessWebsite(value);
       case 'password':
-        if (value.length < 8) {
-          errorMessage = 'Password must be at least 8 characters long';
-        } else if (value.length > 128) {
-          errorMessage = 'Password must be less than 128 characters';
-        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/.test(value)) {
-          errorMessage = 'Password must contain only letters, numbers, and special characters (@$!%*?&)';
-        }
-        break;
-        
+        return validatePassword(value);
       case 'confirmPassword':
         if (value !== formData.password) {
-          errorMessage = 'Passwords do not match';
+          return ['Passwords do not match'];
         }
-        break;
+        return [];
+      default:
+        return [];
     }
-    
-    return errorMessage;
   };
 
   const handleInputChange = (e) => {
@@ -202,31 +127,33 @@ const AdminRegister = ({ onBack }) => {
     
     // Clear general error and validate individual field
     setError('');
-    const fieldError = validateField(name, sanitizedValue);
+    const fieldErrors = validateField(name, sanitizedValue);
     setFieldErrors(prev => ({
       ...prev,
-      [name]: fieldError
+      [name]: fieldErrors.length > 0 ? fieldErrors[0] : ''
     }));
   };
 
   const validateForm = () => {
-    // Validate all fields and collect errors
-    const newFieldErrors = {};
-    let hasErrors = false;
+    // Define validation rules for all fields
+    const validationRules = {
+      username: validateUsername,
+      email: validateEmail,
+      firstName: (value) => validateName(value, 'First name'),
+      lastName: (value) => validateName(value, 'Last name'),
+      phoneNumber: validatePhone,
+      businessName: validateBusinessName,
+      businessDescription: validateBusinessDescription,
+      businessAddress: validateBusinessAddress,
+      businessPhone: validateBusinessPhone,
+      businessEmail: validateBusinessEmail,
+      businessWebsite: validateBusinessWebsite,
+      password: validatePassword,
+      confirmPassword: (value) => value !== formData.password ? ['Passwords do not match'] : []
+    };
     
-    const fieldsToValidate = [
-      'username', 'email', 'firstName', 'lastName', 'phoneNumber',
-      'businessName', 'businessDescription', 'businessAddress', 
-      'businessPhone', 'businessEmail', 'businessWebsite', 'password', 'confirmPassword'
-    ];
-    
-    fieldsToValidate.forEach(fieldName => {
-      const fieldError = validateField(fieldName, formData[fieldName]);
-      if (fieldError) {
-        newFieldErrors[fieldName] = fieldError;
-        hasErrors = true;
-      }
-    });
+    // Validate all fields
+    const { errors, hasErrors } = validateFormUtil(formData, validationRules);
     
     // Check user type
     if (!formData.userType) {
@@ -235,7 +162,7 @@ const AdminRegister = ({ onBack }) => {
     }
     
     // Update field errors state
-    setFieldErrors(newFieldErrors);
+    setFieldErrors(errors);
     
     if (hasErrors) {
       setError('Please fix the errors below before submitting');

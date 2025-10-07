@@ -26,7 +26,7 @@ const InventoryManagement = () => {
     price: '',
     stock: '',
     unit: 'kg',
-    type: 'Grains',
+    type: 'GRAINS',
     status: 'In Stock'
   });
 
@@ -36,7 +36,7 @@ const InventoryManagement = () => {
     price: '',
     stock: '',
     unit: 'kg',
-    type: 'Grains',
+    type: 'GRAINS',
     status: 'In Stock'
   });
 
@@ -97,6 +97,29 @@ const InventoryManagement = () => {
         return 'Out Of Stock';
       default:
         return status;
+    }
+  };
+
+  // Helper function to convert old category names to new uppercase format
+  const convertToUppercaseCategory = (category) => {
+    if (!category) return 'GRAINS';
+    switch (category) {
+      case 'Vegetables':
+        return 'VEGETABLES';
+      case 'Cooking Essentials':
+        return 'COOKING ESSENTIALS';
+      case 'Grains':
+        return 'GRAINS';
+      case 'Spices':
+        return 'SPICES';
+      case 'Dairy':
+        return 'DAIRY';
+      case 'Beverages':
+        return 'BEVERAGES';
+      case 'Snacks':
+        return 'SNACKS';
+      default:
+        return category; // Return as-is if already uppercase or unknown
     }
   };
 
@@ -169,7 +192,7 @@ const InventoryManagement = () => {
         price: itemToEdit.price || '',
         stock: itemToEdit.stock || '',
         unit: itemToEdit.unit || 'kg',
-        type: itemToEdit.type || 'Grains',
+        type: convertToUppercaseCategory(itemToEdit.type) || 'GRAINS',
         status: getDisplayStatus(itemToEdit.status) || 'In Stock'
       });
       setShowEditModal(true);
@@ -220,7 +243,7 @@ const InventoryManagement = () => {
             price: '',
             stock: '',
             unit: 'kg',
-            type: 'Grains',
+            type: 'GRAINS',
             status: 'In Stock'
           });
           setEditingItem(null);
@@ -288,7 +311,7 @@ const InventoryManagement = () => {
             price: '',
             stock: '',
             unit: 'kg',
-            type: 'Grains',
+            type: 'GRAINS',
             status: 'In Stock'
           });
           
@@ -470,6 +493,7 @@ const InventoryManagement = () => {
           <div className="table-cell">Product ID</div>
           <div className="table-cell">Price</div>
           <div className="table-cell">Stock</div>
+          <div className="table-cell">Unit</div>
           <div className="table-cell">Type</div>
           <div className="table-cell">Status</div>
           <div className="table-cell">Action</div>
@@ -499,38 +523,59 @@ const InventoryManagement = () => {
               <div className="table-cell product-name">
                 <div className="product-info">
                   <div className="product-icon">
-                    {item.type === 'Grains' ? (
+                    {(item.type === 'GRAINS' || item.type === 'Grains') ? (
       <img 
         src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" 
-        alt="Grains"
+        alt="GRAINS"
         className="product-icon-img"
       />
     ) : 
-                       item.type === 'Vegetables' ? (
+                       (item.type === 'BEVERAGES' || item.type === 'Beverages') ? (
                         <img 
-                          src="https://i.pinimg.com/736x/f7/6a/26/f76a264bf889fccd255d89565e9eeb49.jpg" 
-                          alt="Vegetables"
+                          src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" 
+                          alt="BEVERAGES"
                           className="product-icon-img"
                         />
                       ) : 
-                       item.type === 'Spices' ? (
+                       item.type === 'DAAL' ? (
+                        <img 
+                          src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" 
+                          alt="DAAL"
+                          className="product-icon-img"
+                        />
+                      ) : 
+                       (item.type === 'SPICES' || item.type === 'Spices') ? (
                         <img 
                           src="https://i.pinimg.com/1200x/26/41/36/2641361405ddf2f9fe6f8077f51ae1e1.jpg" 
-                          alt="Spices"
+                          alt="SPICES"
                           className="product-icon-img"
                         />
                       ) : 
-                       item.type === 'Dairy' ? (
+                       (item.type === 'DAIRY' || item.type === 'Dairy') ? (
                         <img 
                           src="https://i.pinimg.com/736x/d6/36/ac/d636acf9ff4ff829a38c27f965ef254c.jpg" 
-                          alt="Dairy"
+                          alt="DAIRY"
                           className="product-icon-img"
                         />
                       ) : 
-                       item.type === 'Cooking Essentials' ? (
+                       (item.type === 'SNACKS' || item.type === 'Snacks') ? (
                         <img 
                           src="https://i.pinimg.com/736x/d8/76/85/d8768525cbe4a5131cd77bf0b11065b2.jpg" 
-                          alt="Dairy"
+                          alt="SNACKS"
+                          className="product-icon-img"
+                        />
+                      ) : 
+                       (item.type === 'VEGETABLES' || item.type === 'Vegetables') ? (
+                        <img 
+                          src="https://i.pinimg.com/736x/f7/6a/26/f76a264bf889fccd255d89565e9eeb49.jpg" 
+                          alt="VEGETABLES"
+                          className="product-icon-img"
+                        />
+                      ) : 
+                       (item.type === 'COOKING ESSENTIALS' || item.type === 'Cooking Essentials') ? (
+                        <img 
+                          src="https://i.pinimg.com/736x/d8/76/85/d8768525cbe4a5131cd77bf0b11065b2.jpg" 
+                          alt="COOKING ESSENTIALS"
                           className="product-icon-img"
                         />
                       ) : '📦'}
@@ -543,6 +588,8 @@ const InventoryManagement = () => {
               <div className="table-cell">{formatCurrency(item.price)}</div>
               <div className="table-cell">
                 <span className="stock-value">{item.stock || 0}</span>
+              </div>
+              <div className="table-cell">
                 <span className="stock-unit">{item.unit || 'N/A'}</span>
               </div>
               <div className="table-cell">{item.type || 'N/A'}</div>
@@ -786,8 +833,11 @@ const InventoryManagement = () => {
                     className="form-select"
                   >
                     <option value="kg">kg</option>
-                    <option value="liter">liter</option>
-                    <option value="pcs">pcs</option>
+                    <option value="g">g</option>
+                    <option value="l">l</option>
+                    <option value="ml">ml</option>
+                    <option value="pieces">pieces</option>
+                    <option value="piece">piece</option>
                     <option value="packet">packet</option>
                   </select>
                 </div>
@@ -800,11 +850,14 @@ const InventoryManagement = () => {
                     onChange={handleInputChange}
                     className="form-select"
                   >
-                    <option value="Grains">Grains</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Spices">Spices</option>
-                    <option value="Dairy">Dairy</option>
-                    <option value="Cooking Essentials">Cooking Essentials</option>
+                    <option value="BEVERAGES">BEVERAGES</option>
+                    <option value="GRAINS">GRAINS</option>
+                    <option value="DAAL">DAAL</option>
+                    <option value="SPICES">SPICES</option>
+                    <option value="DAIRY">DAIRY</option>
+                    <option value="SNACKS">SNACKS</option>
+                    <option value="VEGETABLES">VEGETABLES</option>
+                    <option value="COOKING ESSENTIALS">COOKING ESSENTIALS</option>
                   </select>
                 </div>
               </div>
@@ -922,8 +975,9 @@ const InventoryManagement = () => {
                   >
                     <option value="kg">kg</option>
                     <option value="g">g</option>
-                    <option value="liter">liter</option>
+                    <option value="l">l</option>
                     <option value="ml">ml</option>
+                    <option value="pieces">pieces</option>
                     <option value="piece">piece</option>
                     <option value="packet">packet</option>
                   </select>
@@ -937,13 +991,14 @@ const InventoryManagement = () => {
                     onChange={handleEditInputChange}
                     className="form-input"
                   >
-                    <option value="Grains">Grains</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Spices">Spices</option>
-                    <option value="Dairy">Dairy</option>
-                    <option value="Cooking Essentials">Cooking Essentials</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Snacks">Snacks</option>
+                    <option value="BEVERAGES">BEVERAGES</option>
+                    <option value="GRAINS">GRAINS</option>
+                    <option value="DAAL">DAAL</option>
+                    <option value="SPICES">SPICES</option>
+                    <option value="DAIRY">DAIRY</option>
+                    <option value="SNACKS">SNACKS</option>
+                    <option value="VEGETABLES">VEGETABLES</option>
+                    <option value="COOKING ESSENTIALS">COOKING ESSENTIALS</option>
                   </select>
                 </div>
               </div>

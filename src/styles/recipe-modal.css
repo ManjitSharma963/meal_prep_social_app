@@ -171,3 +171,52 @@
 
 /* Tiny helpers when debugging - you can remove later */
 .recipe-form-container.debug-outline * { outline: 1px dashed rgba(255,255,255,0.04); }
+
+/* Existing items display */
+.existing-items {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.existing-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.existing-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.item-quantity {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.step-number {
+  font-weight: 600;
+  color: #007bff;
+  margin-right: 0.5rem;
+}
+
+.step-text {
+  color: var(--text);
+  flex: 1;
+}
+
+.section-description {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}

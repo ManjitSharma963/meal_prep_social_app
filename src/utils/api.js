@@ -1,4 +1,11 @@
 // API utility functions for authenticated requests
+import { 
+  makeAPIRequest, 
+  handleAPIError, 
+  createAPIError, 
+  ERROR_TYPES,
+  fetchWithTimeout 
+} from './apiErrorHandler';
 
 export const createAuthHeaders = (token) => {
   const headers = {
@@ -12,7 +19,7 @@ export const createAuthHeaders = (token) => {
   return headers;
 };
 
-export const makeAuthenticatedRequest = async (url, options = {}, token) => {
+export const makeAuthenticatedRequest = async (url, options = {}, token, retryOptions = {}) => {
   const headers = createAuthHeaders(token);
   
   console.log('Making authenticated request to:', url);
@@ -26,93 +33,86 @@ export const makeAuthenticatedRequest = async (url, options = {}, token) => {
       ...options.headers,
     },
   };
-  
-  const response = await fetch(url, config);
-  
-  console.log('Response status:', response.status);
-  console.log('Response headers:', response.headers);
-  
-  if (!response.ok) {
-    let errorData = {};
-    try {
-      // Try to parse JSON error response
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        errorData = await response.json();
-      }
-    } catch (e) {
-      // If JSON parsing fails, use status text
-      errorData = { message: response.statusText };
-    }
-    console.error('API Error:', errorData);
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+
+  try {
+    const response = await makeAPIRequest(url, config, retryOptions);
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    return response;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw handleAPIError(error, false); // Don't show notification here, let components handle it
   }
-  
-  return response;
 };
 
 // Specific API functions
-export const fetchRecipes = async (token) => {
+export const fetchRecipes = async (token, retryOptions = { retry: true, maxRetries: 2 }) => {
   const response = await makeAuthenticatedRequest(
     'http://localhost:3002/recipes',
     { method: 'GET' },
-    token
+    token,
+    retryOptions
   );
   return response.json();
 };
 
-export const fetchOrders = async (token) => {
+export const fetchOrders = async (token, retryOptions = { retry: true, maxRetries: 2 }) => {
   const response = await makeAuthenticatedRequest(
     'http://localhost:3002/pos/orders',
     { method: 'GET' },
-    token
+    token,
+    retryOptions
   );
   return response.json();
 };
 
-export const createOrder = async (orderData, token) => {
+export const createOrder = async (orderData, token, retryOptions = { retry: true, maxRetries: 3 }) => {
   const response = await makeAuthenticatedRequest(
     'http://localhost:3002/pos/orders',
     {
       method: 'POST',
       body: JSON.stringify(orderData),
     },
-    token
+    token,
+    retryOptions
   );
   return response.json();
 };
 
-export const createRecipe = async (recipeData, token) => {
+export const createRecipe = async (recipeData, token, retryOptions = { retry: true, maxRetries: 3 }) => {
   const response = await makeAuthenticatedRequest(
     'http://localhost:3002/recipes',
     {
       method: 'POST',
       body: JSON.stringify(recipeData),
     },
-    token
+    token,
+    retryOptions
   );
   return response.json();
 };
 
-export const updateRecipe = async (recipeId, recipeData, token) => {
+export const updateRecipe = async (recipeId, recipeData, token, retryOptions = { retry: true, maxRetries: 3 }) => {
   const response = await makeAuthenticatedRequest(
     `http://localhost:3002/recipes/${recipeId}`,
     {
       method: 'PUT',
       body: JSON.stringify(recipeData),
     },
-    token
+    token,
+    retryOptions
   );
   return response.json();
 };
 
-export const deleteRecipe = async (recipeId, token) => {
+export const deleteRecipe = async (recipeId, token, retryOptions = { retry: true, maxRetries: 2 }) => {
   const response = await makeAuthenticatedRequest(
     `http://localhost:3002/recipes/${recipeId}`,
     {
       method: 'DELETE',
     },
-    token
+    token,
+    retryOptions
   );
   
   // Handle 204 No Content response for successful deletion
@@ -124,42 +124,34 @@ export const deleteRecipe = async (recipeId, token) => {
   return response.json();
 };
 
-export const loginUser = async (credentials) => {
-  const response = await fetch('http://localhost:3002/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(credentials),
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Login failed');
+export const loginUser = async (credentials, retryOptions = { retry: true, maxRetries: 2 }) => {
+  try {
+    const response = await makeAPIRequest(
+      'http://localhost:3002/auth/login',
+      {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      },
+      retryOptions
+    );
+    return response.json();
+  } catch (error) {
+    throw handleAPIError(error, false);
   }
-  
-  return response.json();
 };
 
-export const registerUser = async (userData) => {
-  const response = await fetch('http://localhost:3002/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  });
-  
-  if (!response.ok) {
-    let errorMessage = 'Registration failed';
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.error || errorData.message || errorMessage;
-    } catch (parseError) {
-      errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-    }
-    throw new Error(errorMessage);
+export const registerUser = async (userData, retryOptions = { retry: true, maxRetries: 2 }) => {
+  try {
+    const response = await makeAPIRequest(
+      'http://localhost:3002/auth/register',
+      {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      },
+      retryOptions
+    );
+    return response.json();
+  } catch (error) {
+    throw handleAPIError(error, false);
   }
-  
-  return response.json();
 };

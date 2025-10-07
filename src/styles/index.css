@@ -12,6 +12,7 @@
 @import './ingredient-form.css';
 @import './dish-library.css';
 @import './recipe-detail.css';
+@import './loading.css';
 
 /* Global styles that apply to all components */
 * {

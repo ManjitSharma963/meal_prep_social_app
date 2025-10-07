@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { makeAuthenticatedRequest } from '../utils/api';
+import { safeGet, safeMap, safeLength, safeRecipeGet } from '../utils/safeAccess';
 import { Clock, Users, ChefHat, Star, Heart, Share2, Timer, Thermometer, Flame } from 'lucide-react';
 import { detailedRecipes } from '../data/recipes';
 import '../styles/admin-components.css';
@@ -151,22 +152,27 @@ const RecipeDetail = () => {
   };
 
   const getAdjustedQuantity = (ingredient) => {
-    const multiplier = servings / (recipe.servings || 2);
-    if (ingredient.quantity === 'as required') return ingredient.quantity;
+    const recipeServings = safeGet(recipe, 'servings', 2);
+    const multiplier = servings / recipeServings;
     
-    const quantity = parseFloat(ingredient.quantity);
-    if (isNaN(quantity)) return ingredient.quantity;
+    if (safeGet(ingredient, 'quantity') === 'as required') {
+      return safeGet(ingredient, 'quantity', 'as required');
+    }
+    
+    const quantity = parseFloat(safeGet(ingredient, 'quantity', '0'));
+    if (isNaN(quantity)) return safeGet(ingredient, 'quantity', '0');
     
     return (quantity * multiplier).toFixed(1);
   };
 
   const renderStars = (rating) => {
+    const safeRating = safeGet(recipe, 'rating', 0);
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
         size={20}
         className="stars"
-        fill={i < Math.floor(rating) ? '#ffc107' : 'none'}
+        fill={i < Math.floor(safeRating) ? '#ffc107' : 'none'}
       />
     ));
   };
@@ -174,39 +180,43 @@ const RecipeDetail = () => {
   return (
     <div className="recipe-detail">
       <div className="recipe-header">
-        <img src={recipe.image || '/placeholder-recipe.jpg'} alt={recipe.title || 'Recipe'} className="recipe-image" />
+        <img 
+          src={safeRecipeGet(recipe, 'image')} 
+          alt={safeRecipeGet(recipe, 'title')} 
+          className="recipe-image" 
+        />
         
-        <div className="recipe-title">{recipe.title || 'Untitled Recipe'}</div>
+        <div className="recipe-title">{safeRecipeGet(recipe, 'title')}</div>
         
         <div className="recipe-meta">
           <div className="meta-item">
             <Clock size={20} />
             <div>
-              <div>Prep: {recipe.prepTime || 0} min</div>
-              <div>Cook: {recipe.cookTime || 0} min</div>
+              <div>Prep: {safeRecipeGet(recipe, 'prepTime')} min</div>
+              <div>Cook: {safeRecipeGet(recipe, 'cookTime')} min</div>
             </div>
           </div>
           <div className="meta-item">
             <Users size={20} />
             <div>
               <div>Servings: {servings}</div>
-              <div>Difficulty: {recipe.difficulty || 'Unknown'}</div>
+              <div>Difficulty: {safeRecipeGet(recipe, 'difficulty')}</div>
             </div>
           </div>
           <div className="meta-item">
             <Star size={20} />
             <div>
-              <div>Rating: {recipe.rating || 0}/5</div>
-              <div>{renderStars(recipe.rating || 0)}</div>
+              <div>Rating: {safeRecipeGet(recipe, 'rating')}/5</div>
+              <div>{renderStars(safeRecipeGet(recipe, 'rating'))}</div>
             </div>
           </div>
           <div className="meta-item">
-            <div>Price: ₹{recipe.price || 0}</div>
-            <div>Calories: {recipe.nutrition?.calories || 'N/A'}</div>
+            <div>Price: ₹{safeRecipeGet(recipe, 'price')}</div>
+            <div>Calories: {safeGet(recipe, 'nutrition.calories', 'N/A')}</div>
           </div>
         </div>
 
-        <div className="recipe-description">{recipe.description || 'No description available'}</div>
+        <div className="recipe-description">{safeRecipeGet(recipe, 'description')}</div>
 
         <div className="flex gap-2 mb-3">
           <button
@@ -254,11 +264,11 @@ const RecipeDetail = () => {
             Ingredients
           </h2>
           <ul className="ingredient-list">
-            {(recipe.ingredients || []).map((ingredient, index) => (
+            {safeMap(safeRecipeGet(recipe, 'ingredients'), (ingredient, index) => (
               <li key={index} className="ingredient-item">
-                <span className="ingredient-name">{ingredient.name}</span>
+                <span className="ingredient-name">{safeGet(ingredient, 'name', 'Unknown ingredient')}</span>
                 <span className="ingredient-quantity">
-                  {getAdjustedQuantity(ingredient)} {ingredient.unit}
+                  {getAdjustedQuantity(ingredient)} {safeGet(ingredient, 'unit', '')}
                 </span>
               </li>
             ))}
@@ -268,26 +278,26 @@ const RecipeDetail = () => {
         <div className="steps-section">
           <h2 className="section-title">
             <Timer size={24} />
-            Cooking Steps ({(recipe.steps || []).length})
+            Cooking Steps ({safeLength(safeRecipeGet(recipe, 'steps'))})
           </h2>
           <ul className="step-list">
-            {(recipe.steps || []).map((step, index) => (
+            {safeMap(safeRecipeGet(recipe, 'steps'), (step, index) => (
               <li key={index} className="step-item">
                 <div className="step-content">
-                  <div className="step-text">{step.text}</div>
+                  <div className="step-text">{safeGet(step, 'text', 'No step description')}</div>
                   {cookingMode === 'beginner' && (
                     <div className="step-meta">
                       <div className="step-meta-item">
                         <Flame size={16} />
-                        <span>{step.heat}</span>
+                        <span>{safeGet(step, 'heat', 'Medium')}</span>
                       </div>
                       <div className="step-meta-item">
                         <Thermometer size={16} />
-                        <span>{step.temperature}</span>
+                        <span>{safeGet(step, 'temperature', '180°C')}</span>
                       </div>
                       <div className="step-meta-item">
                         <Timer size={16} />
-                        <span>{step.time}</span>
+                        <span>{safeGet(step, 'time', '2 min')}</span>
                       </div>
                     </div>
                   )}

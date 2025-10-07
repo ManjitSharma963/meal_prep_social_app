@@ -3,6 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchRecipes, createRecipe, updateRecipe, deleteRecipe } from '../utils/api';
 import { Clock, Star, Users, ChefHat, Plus, X, Save, ChevronUp, ChevronDown, Edit, Trash2 } from 'lucide-react';
+import { 
+  RecipeListSkeleton, 
+  LoadingButton, 
+  PageLoading, 
+  InlineLoading,
+  RefreshButton 
+} from './LoadingComponents';
 import '../styles/dish-library.css';
 import '../styles/recipe-modal.css';
 import '../styles/ingredient-form.css';
@@ -17,6 +24,8 @@ const DishLibrary = () => {
   const [isAddRecipeModalOpen, setIsAddRecipeModalOpen] = useState(false);
   const [isEditRecipeModalOpen, setIsEditRecipeModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
+  const [originalIngredients, setOriginalIngredients] = useState([]);
+  const [originalSteps, setOriginalSteps] = useState([]);
   const [recipe, setRecipe] = useState({
     title: '',
     description: '',
@@ -105,6 +114,7 @@ const DishLibrary = () => {
   };
 
   const addIngredient = () => {
+    console.log('Adding new ingredient, current ingredients:', recipe.ingredients);
     setRecipe(prev => ({
       ...prev,
       ingredients: [...prev.ingredients, { name: '', quantity: '', unit: '' }]
@@ -128,6 +138,7 @@ const DishLibrary = () => {
   };
 
   const addStep = () => {
+    console.log('Adding new step, current steps:', recipe.steps);
     setRecipe(prev => ({
       ...prev,
       steps: [...prev.steps, { text: '', heat: '', temperature: '', time: '' }]
@@ -151,10 +162,12 @@ const DishLibrary = () => {
   };
 
   const handleIngredientChange = (index, field, value) => {
+    console.log(`Updating ingredient ${index}, field: ${field}, value: "${value}"`);
     updateIngredient(index, field, value);
   };
 
   const handleStepChange = (index, field, value) => {
+    console.log(`Updating step ${index}, field: ${field}, value: "${value}"`);
     updateStep(index, field, value);
   };
 
@@ -214,12 +227,53 @@ const DishLibrary = () => {
     }
   };
 
+  // Helper function to filter out only new ingredients and steps
+  const getNewIngredientsAndSteps = () => {
+    // Filter out empty ingredients (newly added ones that have at least name and quantity)
+    const newIngredients = recipe.ingredients.filter(ingredient => 
+      ingredient.name.trim() !== '' && 
+      ingredient.quantity.trim() !== ''
+      // Unit is optional, so we don't require it
+    );
+
+    // Filter out empty steps (newly added ones that have at least text)
+    const newSteps = recipe.steps.filter(step => 
+      step.text.trim() !== ''
+      // Heat, temperature, and time are optional, so we don't require them
+    );
+
+    console.log('Filtering ingredients:', recipe.ingredients);
+    console.log('Filtered new ingredients:', newIngredients);
+    console.log('Filtering steps:', recipe.steps);
+    console.log('Filtered new steps:', newSteps);
+
+    return { newIngredients, newSteps };
+  };
+
   const handleUpdateRecipe = async (e) => {
     e.preventDefault();
     if (!editingRecipe) return;
 
     try {
-      const updatedRecipe = await updateRecipe(editingRecipe.id, recipe, token);
+      console.log('Current recipe state before filtering:', recipe);
+      console.log('Current ingredients array:', recipe.ingredients);
+      console.log('Current steps array:', recipe.steps);
+      
+      // Get only the new ingredients and steps
+      const { newIngredients, newSteps } = getNewIngredientsAndSteps();
+      
+      // Create payload with only new additions
+      const updatePayload = {
+        ...recipe,
+        ingredients: newIngredients,
+        steps: newSteps
+      };
+
+      console.log('Updating recipe with new ingredients:', newIngredients);
+      console.log('Updating recipe with new steps:', newSteps);
+      console.log('Full update payload:', updatePayload);
+
+      const updatedRecipe = await updateRecipe(editingRecipe.id, updatePayload, token);
       setRecipes(prev => prev.map(r => r.id === editingRecipe.id ? updatedRecipe : r));
       closeEditRecipeModal();
       alert('Recipe updated successfully!');
@@ -239,6 +293,11 @@ const DishLibrary = () => {
 
   const openEditRecipeModal = (recipeToEdit) => {
     setEditingRecipe(recipeToEdit);
+    
+    // Store original ingredients and steps for comparison
+    setOriginalIngredients(recipeToEdit.ingredients || []);
+    setOriginalSteps(recipeToEdit.steps || []);
+    
     setRecipe({
       title: recipeToEdit.title || '',
       description: recipeToEdit.description || '',
@@ -257,8 +316,9 @@ const DishLibrary = () => {
         fat: recipeToEdit.nutrition?.fat || '',
         fiber: recipeToEdit.nutrition?.fiber || ''
       },
-      ingredients: recipeToEdit.ingredients || [{ name: '', quantity: '', unit: '' }],
-      steps: recipeToEdit.steps || [{ text: '', heat: '', temperature: '', time: '' }]
+      // Initialize with empty arrays for new ingredients and steps
+      ingredients: [{ name: '', quantity: '', unit: '' }],
+      steps: [{ text: '', heat: '', temperature: '', time: '' }]
     });
     setIsEditRecipeModalOpen(true);
   };
@@ -335,10 +395,38 @@ const DishLibrary = () => {
   if (loading) {
     return (
       <div className="dish-library">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading recipes...</p>
+        <div className="dish-library-header">
+          <h1>Recipe Library</h1>
+          <div className="dish-library-controls">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search recipes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+                disabled
+              />
+            </div>
+            <div className="category-filter">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="category-select"
+                disabled
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            <button className="btn btn-primary" disabled>
+              <Plus size={20} />
+              Add Recipe
+            </button>
+          </div>
         </div>
+        <RecipeListSkeleton count={6} />
       </div>
     );
   }
@@ -453,7 +541,7 @@ const DishLibrary = () => {
                   <Edit size={16} />
                   Edit
                 </button>
-                <button 
+                <LoadingButton 
                   className="btn-delete"
                   onClick={(e) => {
                     e.preventDefault();
@@ -461,11 +549,12 @@ const DishLibrary = () => {
                     handleDeleteRecipe(dish.id, dish.title);
                   }}
                   title="Delete Recipe"
-                  disabled={loading}
+                  loading={loading}
+                  loadingText="Deleting..."
                 >
                   <Trash2 size={16} />
-                  {loading ? 'Deleting...' : 'Delete'}
-                </button>
+                  Delete
+                </LoadingButton>
               </div>
             </div>
           ))
@@ -966,13 +1055,29 @@ const DishLibrary = () => {
                 </div>
               </div>
 
+              {/* Show existing ingredients for reference */}
+              {originalIngredients.length > 0 && (
+                <div className="form-section">
+                  <h3>Current Ingredients</h3>
+                  <div className="existing-items">
+                    {originalIngredients.map((ingredient, index) => (
+                      <div key={index} className="existing-item">
+                        <span className="item-name">{ingredient.name}</span>
+                        <span className="item-quantity">{ingredient.quantity} {ingredient.unit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="form-section">
-                <h3>Ingredients</h3>
+                <h3>Add New Ingredients</h3>
+                <p className="section-description">Add additional ingredients to this recipe</p>
                 {recipe.ingredients.map((ingredient, index) => (
                   <div key={index} className="ingredient-row">
                     <input
                       type="text"
-                      placeholder="Ingredient name"
+                      placeholder="New ingredient name"
                       value={ingredient.name}
                       onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                     />
@@ -986,6 +1091,7 @@ const DishLibrary = () => {
                       value={ingredient.unit}
                       onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
                     >
+                      <opton value="select unit">select unit</opton>
                       <option value="g">g</option>
                       <option value="kg">kg</option>
                       <option value="ml">ml</option>
@@ -1002,17 +1108,33 @@ const DishLibrary = () => {
                 ))}
                 <button type="button" onClick={addIngredient} className="btn-add">
                   <Plus size={16} />
-                  Add Ingredient
+                  Add New Ingredient
                 </button>
               </div>
 
+              {/* Show existing steps for reference */}
+              {originalSteps.length > 0 && (
+                <div className="form-section">
+                  <h3>Current Cooking Steps</h3>
+                  <div className="existing-items">
+                    {originalSteps.map((step, index) => (
+                      <div key={index} className="existing-item">
+                        <span className="step-number">Step {index + 1}:</span>
+                        <span className="step-text">{step.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="form-section">
-                <h3>Cooking Steps</h3>
+                <h3>Add New Cooking Steps</h3>
+                <p className="section-description">Add additional cooking steps to this recipe</p>
                 {recipe.steps.map((step, index) => (
                   <div key={index} className="step-row">
                     <div className="step-content">
                       <textarea
-                        placeholder="Describe the step"
+                        placeholder="Describe the new step"
                         value={step.text}
                         onChange={(e) => handleStepChange(index, 'text', e.target.value)}
                         rows="2"
@@ -1048,7 +1170,7 @@ const DishLibrary = () => {
                 ))}
                 <button type="button" onClick={addStep} className="btn-add">
                   <Plus size={16} />
-                  Add Step
+                  Add New Step
                 </button>
               </div>
 
