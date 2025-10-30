@@ -12,7 +12,8 @@ import {
   ShoppingCart,
   Clock,
   Target,
-  AlertCircle
+  AlertCircle,
+  Search
 } from 'lucide-react';
 import '../styles/admin-components.css';
 
@@ -485,79 +486,188 @@ const SalesReports = () => {
 
           {/* Bottom Section */}
           <div className="bottom-section">
-            {/* All Bills */}
-            <div className="widget recent-bills">
+            {/* All Bills - Redesigned */}
+            <div className="widget modern-bills">
               <div className="widget-header">
-                <h3>All Bills</h3>
+                <div className="header-left">
+                  <h3>All Bills</h3>
+                  <span className="bill-count">{salesData.orders.length} transactions</span>
+                </div>
                 <div className="widget-controls">
+                  <div className="search-box">
+                    <input
+                      type="text"
+                      placeholder="Search bills..."
+                      className="search-input"
+                    />
+                    <Search size={16} />
+                  </div>
                   <select className="widget-select">
                     <option>All Orders</option>
                     <option>Today</option>
                     <option>This Week</option>
+                    <option>This Month</option>
+                  </select>
+                  <select className="widget-select">
+                    <option>All Methods</option>
+                    <option>Cash</option>
+                    <option>UPI</option>
+                    <option>Card</option>
                   </select>
                 </div>
               </div>
+              
               <div className="widget-content">
-                <div className="bills-table">
+                <div className="modern-bills-table">
                   <div className="table-header">
-                    <div className="table-cell">DATE</div>
-                    <div className="table-cell">AMOUNT</div>
-                    <div className="table-cell">CUSTOMER</div>
-                    <div className="table-cell">METHOD</div>
-                    <div className="table-cell">STATUS</div>
+                    <div className="table-cell">Order ID</div>
+                    <div className="table-cell">Date & Time</div>
+                    <div className="table-cell">Customer</div>
+                    <div className="table-cell">Amount</div>
+                    <div className="table-cell">Payment Method</div>
+                    <div className="table-cell">Status</div>
+                    <div className="table-cell">Actions</div>
                   </div>
-                  {salesData.orders.map((order, index) => (
-                    <div key={index} className="table-row">
-                      <div className="table-cell date-cell">
-                        {(() => {
-                          try {
-                            let date;
-                            if (Array.isArray(order.orderDate)) {
-                              // Handle array format [year, month, day, hour, minute, second, nanosecond]
-                              const [year, month, day, hour, minute, second] = order.orderDate;
-                              date = new Date(year, month - 1, day, hour, minute, second || 0);
-                            } else {
-                              date = new Date(order.orderDate);
-                            }
-                            
-                            if (isNaN(date.getTime())) {
-                              return 'Invalid Date';
-                            }
-                            
-                            return date.toLocaleDateString('en-IN', {
-                              day: '2-digit',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            });
-                          } catch (error) {
-                            console.error('Date parsing error:', error, order.orderDate);
-                            return 'Invalid Date';
-                          }
-                        })()}
+                  
+                  <div className="table-body">
+                    {salesData.orders.map((order, index) => (
+                      <div key={index} className="modern-table-row">
+                        <div className="table-cell order-id-cell">
+                          <div className="order-id">
+                            <span className="id-number">#{order.id || (index + 1).toString().padStart(3, '0')}</span>
+                          </div>
+                        </div>
+                        
+                        
+                        
+                        <div className="table-cell customer-cell">
+                          <div className="customer-info">
+                            <div className="customer-avatar">
+                              {order.customerMobile ? order.customerMobile.charAt(0).toUpperCase() : 'W'}
+                            </div>
+                            <div className="customer-details">
+                              <span className="customer-name">
+                                {order.customerMobile ? `+${order.customerMobile}` : 'Walk-in Customer'}
+                              </span>
+                              <span className="customer-type">
+                                {order.customerMobile ? 'Registered' : 'Guest'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="table-cell amount-cell">
+                          <div className="amount-display">
+                            <span className="amount-value">₹{(order.totalAmount || 0).toFixed(2)}</span>
+                            <span className="amount-label">Total</span>
+                          </div>
+                        </div>
+                        
+                        <div className="table-cell method-cell">
+                          <div className={`payment-method ${order.paymentMethod?.toLowerCase()}`}>
+                            <div className="method-icon">
+                              {order.paymentMethod === 'CASH' ? '💵' : 
+                               order.paymentMethod === 'UPI' ? '📱' : 
+                               order.paymentMethod === 'CARD' ? '💳' : '❓'}
+                            </div>
+                            <span className="method-name">{order.paymentMethod || 'Unknown'}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="table-cell status-cell">
+                          <div className={`status-indicator ${order.paymentStatus?.toLowerCase()}`}>
+                            <div className="status-dot"></div>
+                            <span className="status-text">{order.paymentStatus || 'Unknown'}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="table-cell actions-cell">
+                          <div className="action-buttons">
+                            <button className="action-btn view-btn" title="View Details">
+                              <BarChart3 size={14} />
+                            </button>
+                            <button className="action-btn print-btn" title="Print Bill">
+                              <Download size={14} />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="table-cell date-cell">
+                          <div className="date-info">
+                            <div className="date">
+                              {(() => {
+                                try {
+                                  let date;
+                                  if (Array.isArray(order.orderDate)) {
+                                    const [year, month, day, hour, minute, second] = order.orderDate;
+                                    date = new Date(year, month - 1, day, hour, minute, second || 0);
+                                  } else {
+                                    date = new Date(order.orderDate);
+                                  }
+                                  
+                                  if (isNaN(date.getTime())) {
+                                    return 'Invalid Date';
+                                  }
+                                  
+                                  return date.toLocaleDateString('en-IN', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: '2-digit'
+                                  });
+                                } catch (error) {
+                                  console.error('Date parsing error:', error, order.orderDate);
+                                  return 'Invalid Date';
+                                }
+                              })()}
+                            </div>
+                            <div className="time">
+                              {(() => {
+                                try {
+                                  let date;
+                                  if (Array.isArray(order.orderDate)) {
+                                    const [year, month, day, hour, minute, second] = order.orderDate;
+                                    date = new Date(year, month - 1, day, hour, minute, second || 0);
+                                  } else {
+                                    date = new Date(order.orderDate);
+                                  }
+                                  
+                                  if (isNaN(date.getTime())) {
+                                    return '--:--';
+                                  }
+                                  
+                                  return date.toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  });
+                                } catch (error) {
+                                  return '--:--';
+                                }
+                              })()}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="table-cell amount-cell">
-                        {formatCurrency(order.totalAmount)}
-                      </div>
-                      <div className="table-cell customer-cell">
-                        {order.customerMobile || 'Walk-in'}
-                      </div>
-                      <div className="table-cell method-cell">
-                        {order.paymentMethod}
-                      </div>
-                      <div className="table-cell status-cell">
-                        <span 
-                          className={`status-badge ${order.paymentStatus?.toLowerCase()}`}
-                        >
-                          {order.paymentStatus}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Pagination */}
+                <div className="table-pagination">
+                  <div className="pagination-info">
+                    Showing 1-{salesData.orders.length} of {salesData.orders.length} bills
+                  </div>
+                  <div className="pagination-controls">
+                    <button className="pagination-btn" disabled>
+                      <span>←</span>
+                    </button>
+                    <button className="pagination-btn active">1</button>
+                    <button className="pagination-btn" disabled>
+                      <span>→</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       )}

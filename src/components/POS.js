@@ -147,7 +147,7 @@ const POS = () => {
     
     // Calculate totals
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const taxAmount = subtotal * 0.05;
+    const taxAmount = (subtotal * taxRate) / 100;
     const discountAmount = discount;
     const totalAmount = subtotal + taxAmount - discountAmount;
     
@@ -558,7 +558,22 @@ const POS = () => {
                 </div>
                 
                 <div className="summary-row">
-                  <span>Tax (10%)</span>
+                  <div className="tax-input-container">
+                    <span>Tax (</span>
+                    <input
+                      type="number"
+                      value={taxRate}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        setTaxRate(Math.max(0, Math.min(100, value))); // Limit between 0-100
+                      }}
+                      className="tax-input"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <span>%)</span>
+                  </div>
                   <span>₹{taxAmount.toFixed(2)}</span>
                 </div>
                 

@@ -370,6 +370,49 @@ const InventoryManagement = () => {
     return `₹${numAmount.toFixed(2)}`;
   };
 
+  // Helper function to format stock quantities with appropriate decimal places
+  const formatStockQuantity = (stock, unit) => {
+    const numStock = parseFloat(stock) || 0;
+    const stockUnit = unit || 'kg';
+    
+    // Convert to appropriate unit for display
+    let displayValue = numStock;
+    let displayUnit = stockUnit.toUpperCase();
+    let decimalPlaces = 4; // Default for KG
+    
+    // Handle different units with appropriate decimal places
+    if (stockUnit.toLowerCase() === 'g') {
+      displayValue = numStock / 1000;
+      displayUnit = 'KG';
+      decimalPlaces = 4; // KG gets 4 decimal places
+    } else if (stockUnit.toLowerCase() === 'kg') {
+      decimalPlaces = 4; // KG gets 4 decimal places
+    } else if (stockUnit.toLowerCase() === 'l' || stockUnit.toLowerCase() === 'liter' || stockUnit.toLowerCase() === 'liters') {
+      decimalPlaces = 3; // Liters get 3 decimal places
+    } else if (stockUnit.toLowerCase() === 'ml') {
+      displayValue = numStock / 1000;
+      displayUnit = 'L';
+      decimalPlaces = 3; // Converted to liters gets 3 decimal places
+    } else if (stockUnit.toLowerCase() === 'pieces' || stockUnit.toLowerCase() === 'piece' || stockUnit.toLowerCase() === 'packet') {
+      decimalPlaces = 0; // Whole numbers for pieces/packets
+    }
+    
+    // Format with appropriate decimal places
+    let formattedValue = displayValue.toFixed(decimalPlaces);
+    
+    // For liters, always show exactly 3 decimal places
+    if (displayUnit === 'L') {
+      formattedValue = displayValue.toFixed(3);
+    } else {
+      // For other units, remove only the last trailing zero if it exists
+      if (decimalPlaces > 0 && formattedValue.endsWith('0')) {
+        formattedValue = formattedValue.slice(0, -1);
+      }
+    }
+    
+    return `${formattedValue} ${displayUnit}`;
+  };
+
   // Report calculations
   const getReportData = () => {
     const totalItems = inventoryItems.length;
@@ -493,7 +536,6 @@ const InventoryManagement = () => {
           <div className="table-cell">Product ID</div>
           <div className="table-cell">Price</div>
           <div className="table-cell">Stock</div>
-          <div className="table-cell">Unit</div>
           <div className="table-cell">Type</div>
           <div className="table-cell">Status</div>
           <div className="table-cell">Action</div>
@@ -587,10 +629,7 @@ const InventoryManagement = () => {
               <div className="table-cell">{item.productId || 'N/A'}</div>
               <div className="table-cell">{formatCurrency(item.price)}</div>
               <div className="table-cell">
-                <span className="stock-value">{item.stock || 0}</span>
-              </div>
-              <div className="table-cell">
-                <span className="stock-unit">{item.unit || 'N/A'}</span>
+                <span className="stock-value">{formatStockQuantity(item.stock, item.unit)}</span>
               </div>
               <div className="table-cell">{item.type || 'N/A'}</div>
               <div className="table-cell">
